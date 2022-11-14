@@ -1,11 +1,14 @@
+# Copyright (c) 2017-2022 Slang Labs Private Limited. All rights reserved.
+
 import argparse
 import calendar
-import numpy as np
-
-from slanglabs_nlu.entity_extraction.parsers import parse_dates
 from datetime import datetime, timedelta
 from time import perf_counter_ns
+
+import numpy as np
 from dateutil.relativedelta import relativedelta
+
+from slanglabs_nlu.entity_extraction.parsers import parse_dates
 
 tmp = datetime.now()
 NOW = datetime(
