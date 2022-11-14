@@ -30,7 +30,7 @@ with open("README.md", 'r') as f:
 
 
 setup(
-    name='Slang Labs NLU',
+    name='slanglabs-nlu',
     version=__version__,
     license=__license__,
     description=__description__,
