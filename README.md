@@ -1,3 +1,5 @@
+![lint](https://img.shields.io/github/workflow/status/slanglabs-projects/slanglabs-nlu/Python%20Lint%20and%20Test?label=lint) ![lint](https://img.shields.io/github/workflow/status/slanglabs-projects/slanglabs-nlu/Python%20Lint%20and%20Test?label=tests) 
+
 # Slang Labs NLU
 
 This is a Python library that provides various tools for Natural Language Understanding. These tools are primarily used by the Voice Assistants built by Slang Labs (https://slanglabs.in), but could be useful in other contexts as well.
