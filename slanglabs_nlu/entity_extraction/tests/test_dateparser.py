@@ -2,6 +2,10 @@
 
 import argparse
 import calendar
+import numpy as np
+import pytest
+
+from slanglabs_nlu.entity_extraction.parsers import parse_dates
 from datetime import datetime, timedelta
 from time import perf_counter_ns
 
@@ -219,8 +223,8 @@ test_cases = {
         NOW + relativedelta(months=-3),
         (0, 14)
     )),
-    'no date in here': '',
-    'this utterance is empty': '',
+    'no date in here': [],
+    'this utterance is empty': [],
     'Kasoda to pune tonight': fmt((
         NOW,
         (15, 21)
@@ -267,8 +271,8 @@ test_cases = {
             year=NOW.year if NOW.month < 7 else NOW.year + 1
         ), (56, 59)
     )),
-    'Washim Te pune city Key': '',
-    'erandol': '',
+    'Washim Te pune city Key': [],
+    'erandol': [],
     '12 August 2022': fmt((
         datetime(year=2022, month=8, day=12),
         (0, 13)
@@ -363,7 +367,7 @@ test_cases = {
         ),
         (21, 29)
     )),
-    'Parel mumbai': '',
+    'Parel mumbai': [],
     'Balaghat to raipur on 29th July': fmt((
         datetime(
             day=29,
@@ -374,7 +378,7 @@ test_cases = {
         ),
         (22, 30)
     )),
-    'Tambaram chennai': '',
+    'Tambaram chennai': [],
     'ahmedabad at 10:00': fmt((
         NOW + relativedelta(hours=10),
         (13, 17)
@@ -491,8 +495,8 @@ test_cases = {
             year=2022,
         ), (0, 6)
     )),
-    'saawar day': '',
-    'fast house': '',
+    'saawar day': [],
+    'fast house': [],
     'delhi to merath 29th 2000 2230': fmt((
         datetime(
             day=29,
@@ -542,8 +546,19 @@ test_cases = {
         NOW + timedelta(days=1),
         (30, 37)
     )),
-    'bangalore junction': '',
+    'bangalore junction': [],
 }
+
+@pytest.mark.parametrize(
+    "input, expected",
+    [
+        (input, expected)
+        for input, expected in test_cases.items()
+    ]
+)
+
+def test_parse_dates(input, expected):
+    assert(parse_dates(input, include_time=True)) == expected
 
 
 def parse_args():
@@ -561,7 +576,7 @@ def run_tests(profile=False):
         for i in range(iters):
             start = perf_counter_ns()
             response = parse_dates(input, include_time=True)
-            result = response if response else ''
+            result = response if response else []
             finish = perf_counter_ns()
             latencies.append(finish-start)
 
