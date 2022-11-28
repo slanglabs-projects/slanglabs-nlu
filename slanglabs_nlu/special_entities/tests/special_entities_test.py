@@ -1,7 +1,15 @@
 import unittest
 
+from collections import defaultdict
 from slanglabs_nlu.special_entities.special_entities import SpecialEntities
-from utils import defaultdict_to_dict
+
+
+def defaultdict_to_dict(d, sort_list=True):
+    if isinstance(d, (defaultdict, dict)):
+        d = {k: defaultdict_to_dict(v, sort_list) for k, v in d.items()}
+    if isinstance(d, list) and sort_list is True:
+        d = sorted(d)
+    return d
 
 
 class SpecialEntitiesTest(unittest.TestCase):

@@ -272,8 +272,8 @@ class NumberParser ( Parser ):
                       "NUMBER_HUNDREDS", "NUMBER_THOUSANDS", "NUMBER_LAKHS", 
                       "NUMBER_CRORES", "WHITESPACE", "WORD", "NUMBER" ]
 
-    RULE_payments_utterance = 0
-    RULE_real_estate_utterance = 1
+    RULE_numbers_utterance = 0
+    RULE_ranges_utterance = 1
     RULE_range_pattern = 2
     RULE_number_pattern = 3
     RULE_crores_format = 4
@@ -304,7 +304,7 @@ class NumberParser ( Parser ):
     RULE_prefix = 29
     RULE_suffix = 30
 
-    ruleNames =  [ "payments_utterance", "real_estate_utterance", "range_pattern", 
+    ruleNames =  [ "numbers_utterance", "ranges_utterance", "range_pattern", 
                    "number_pattern", "crores_format", "lakhs_format", "thousands_format", 
                    "hundreds_format", "tens_format", "units_format", "prefix_crores", 
                    "suffix_crores", "prefix_lakhs", "suffix_lakhs", "prefix_thousands", 
@@ -348,7 +348,7 @@ class NumberParser ( Parser ):
 
 
 
-    class Payments_utteranceContext(ParserRuleContext):
+    class Numbers_utteranceContext(ParserRuleContext):
         __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
@@ -384,23 +384,23 @@ class NumberParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return NumberParser.RULE_payments_utterance
+            return NumberParser.RULE_numbers_utterance
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterPayments_utterance" ):
-                listener.enterPayments_utterance(self)
+            if hasattr( listener, "enterNumbers_utterance" ):
+                listener.enterNumbers_utterance(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitPayments_utterance" ):
-                listener.exitPayments_utterance(self)
+            if hasattr( listener, "exitNumbers_utterance" ):
+                listener.exitNumbers_utterance(self)
 
 
 
 
-    def payments_utterance(self):
+    def numbers_utterance(self):
 
-        localctx = NumberParser.Payments_utteranceContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 0, self.RULE_payments_utterance)
+        localctx = NumberParser.Numbers_utteranceContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 0, self.RULE_numbers_utterance)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
@@ -540,7 +540,7 @@ class NumberParser ( Parser ):
         return localctx
 
 
-    class Real_estate_utteranceContext(ParserRuleContext):
+    class Ranges_utteranceContext(ParserRuleContext):
         __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
@@ -583,23 +583,23 @@ class NumberParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return NumberParser.RULE_real_estate_utterance
+            return NumberParser.RULE_ranges_utterance
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterReal_estate_utterance" ):
-                listener.enterReal_estate_utterance(self)
+            if hasattr( listener, "enterRanges_utterance" ):
+                listener.enterRanges_utterance(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitReal_estate_utterance" ):
-                listener.exitReal_estate_utterance(self)
+            if hasattr( listener, "exitRanges_utterance" ):
+                listener.exitRanges_utterance(self)
 
 
 
 
-    def real_estate_utterance(self):
+    def ranges_utterance(self):
 
-        localctx = NumberParser.Real_estate_utteranceContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 2, self.RULE_real_estate_utterance)
+        localctx = NumberParser.Ranges_utteranceContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 2, self.RULE_ranges_utterance)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)

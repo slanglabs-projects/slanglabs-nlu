@@ -4,9 +4,9 @@ grammar Number;
 fragment DIGIT: [0-9];
 fragment LETTER: [a-zA-Z];
 
-payments_utterance: prefix? (number_pattern (' '? WORD ' '?)? spl_discard?)? ((' '? WORD ' '?)+ number_pattern (' '? WORD ' '?)? spl_discard?)* suffix?;
+numbers_utterance: prefix? (number_pattern (' '? WORD ' '?)? spl_discard?)? ((' '? WORD ' '?)+ number_pattern (' '? WORD ' '?)? spl_discard?)* suffix?;
 
-real_estate_utterance: prefix? (range_pattern | (number_pattern (' '? WORD ' '?)? spl_discard?))? ((' '? WORD ' '?)+ (range_pattern | number_pattern (' '? WORD ' '?)? spl_discard?))* suffix?;
+ranges_utterance: prefix? (range_pattern | (number_pattern (' '? WORD ' '?)? spl_discard?))? ((' '? WORD ' '?)+ (range_pattern | number_pattern (' '? WORD ' '?)? spl_discard?))* suffix?;
 
 range_pattern: ' '? 'between' ' '? number_pattern CONJUNCTION number_pattern
     | ' '? 'between' ' '? number_pattern 'to ' number_pattern

@@ -51,8 +51,8 @@ WORD
 NUMBER
 
 rule names:
-payments_utterance
-real_estate_utterance
+numbers_utterance
+ranges_utterance
 range_pattern
 number_pattern
 crores_format

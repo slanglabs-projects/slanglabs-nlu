@@ -4,7 +4,6 @@ import re
 from calendar import monthrange
 from datetime import datetime, timedelta
 
-from slanglabs_nlu.entity_extraction.generated.DateLexer import DateLexer
 from slanglabs_nlu.entity_extraction.generated.DateListener import DateListener
 from slanglabs_nlu.entity_extraction.generated.DateParser import DateParser
 
