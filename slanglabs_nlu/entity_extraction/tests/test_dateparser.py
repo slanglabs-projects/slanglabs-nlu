@@ -303,7 +303,7 @@ test_cases = {
     'Jobt to indore 28th': fmt((
         datetime(
             day=28,
-            month=NOW.month if NOW.day < 28 else NOW.month + 1,
+            month=NOW.month if NOW.day <= 28 else NOW.month + 1,
             year=NOW.year
         ),
         (15, 18)
@@ -344,7 +344,7 @@ test_cases = {
     'indore to jalgaon on 28th': fmt((
         datetime(
             day=28,
-            month=NOW.month if NOW.day < 28 else NOW.month + 1,
+            month=NOW.month if NOW.day <= 28 else NOW.month + 1,
             year=NOW.year,
         ),
         (21, 24)
@@ -549,16 +549,16 @@ test_cases = {
     'bangalore junction': [],
 }
 
+
 @pytest.mark.parametrize(
-    "input, expected",
+    "inputstr, expected",
     [
-        (input, expected)
-        for input, expected in test_cases.items()
+        (inputstr, expected)
+        for inputstr, expected in test_cases.items()
     ]
 )
-
-def test_parse_dates(input, expected):
-    assert(parse_dates(input, include_time=True)) == expected
+def test_parse_dates(inputstr, expected):
+    assert parse_dates(inputstr, include_time=True) == expected
 
 
 def parse_args():
@@ -570,12 +570,12 @@ def parse_args():
 def run_tests(profile=False):
     iters = 1000 if profile else 1
 
-    for input, expected in test_cases.items():
+    for inputstr, expected in test_cases.items():
         latencies = []
         result = None
         for i in range(iters):
             start = perf_counter_ns()
-            response = parse_dates(input, include_time=True)
+            response = parse_dates(inputstr, include_time=True)
             result = response if response else []
             finish = perf_counter_ns()
             latencies.append(finish-start)

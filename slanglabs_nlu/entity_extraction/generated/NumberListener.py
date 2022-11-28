@@ -8,21 +8,21 @@ else:
 # This class defines a complete listener for a parse tree produced by NumberParser.
 class NumberListener(ParseTreeListener):
 
-    # Enter a parse tree produced by NumberParser#payments_utterance.
-    def enterPayments_utterance(self, ctx:NumberParser.Payments_utteranceContext):
+    # Enter a parse tree produced by NumberParser#numbers_utterance.
+    def enterNumbers_utterance(self, ctx:NumberParser.Numbers_utteranceContext):
         pass
 
-    # Exit a parse tree produced by NumberParser#payments_utterance.
-    def exitPayments_utterance(self, ctx:NumberParser.Payments_utteranceContext):
+    # Exit a parse tree produced by NumberParser#numbers_utterance.
+    def exitNumbers_utterance(self, ctx:NumberParser.Numbers_utteranceContext):
         pass
 
 
-    # Enter a parse tree produced by NumberParser#real_estate_utterance.
-    def enterReal_estate_utterance(self, ctx:NumberParser.Real_estate_utteranceContext):
+    # Enter a parse tree produced by NumberParser#ranges_utterance.
+    def enterRanges_utterance(self, ctx:NumberParser.Ranges_utteranceContext):
         pass
 
-    # Exit a parse tree produced by NumberParser#real_estate_utterance.
-    def exitReal_estate_utterance(self, ctx:NumberParser.Real_estate_utteranceContext):
+    # Exit a parse tree produced by NumberParser#ranges_utterance.
+    def exitRanges_utterance(self, ctx:NumberParser.Ranges_utteranceContext):
         pass
 
 

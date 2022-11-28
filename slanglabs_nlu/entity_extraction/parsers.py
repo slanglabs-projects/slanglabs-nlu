@@ -4,13 +4,16 @@ from antlr4 import CommonTokenStream, InputStream, ParseTreeWalker
 
 from slanglabs_nlu.entity_extraction.dateparser import DateExtractionListener
 from slanglabs_nlu.entity_extraction.generated.DateLexer import DateLexer
-from slanglabs_nlu.entity_extraction.generated.DateListener import DateListener
 from slanglabs_nlu.entity_extraction.generated.DateParser import DateParser
 
+from slanglabs_nlu.entity_extraction.numberparser import NumberExtractionListener
+from slanglabs_nlu.entity_extraction.generated.NumberLexer import NumberLexer
+from slanglabs_nlu.entity_extraction.generated.NumberParser import NumberParser
 
-def parse_dates(val, include_time=False, bias_to_future=True):
+
+def parse_dates(inputstr, include_time=False, bias_to_future=True):
     try:
-        lexer = DateLexer(InputStream(val.lower()))
+        lexer = DateLexer(InputStream(inputstr.lower()))
         lexer.removeErrorListeners()
         parser = DateParser(CommonTokenStream(lexer))
         parser.removeErrorListeners()
@@ -26,6 +29,32 @@ def parse_dates(val, include_time=False, bias_to_future=True):
         print(str(e))
         return []
 
+
+def _parse(inputstr, with_ranges=False):
+    try:
+        lexer = NumberLexer(InputStream(inputstr.lower()))
+        parser = NumberParser(CommonTokenStream(lexer))
+        listener = NumberExtractionListener(lexer)
+        walker = ParseTreeWalker()
+        walker.walk(
+            listener,
+            parser.ranges_utterance() if with_ranges
+            else parser.numbers_utterance()
+        )
+        return listener.results
+    except Exception as e:
+        print('Exception: {}!'.format(str(e)))
+        return []
+
+
+def parse_numbers(inputstr):
+    return _parse(inputstr)
+
+
+def parse_numbers_with_ranges(inputstr):
+    return _parse(inputstr, with_ranges=True)
+
+
 if __name__ == "__main__":
-    val = 'train tickets for 15th departure and next month 10th return'
-    print(parse_dates(val))
+    s = 'train tickets for 15th departure and next month 10th return'
+    print(parse_dates(s))
