@@ -4,7 +4,8 @@ grammar Number;
 fragment DIGIT: [0-9];
 fragment LETTER: [a-zA-Z];
 
-numbers_utterance: prefix? (number_pattern (' '? WORD ' '?)? spl_discard?)? ((' '? WORD ' '?)+ number_pattern (' '? WORD ' '?)? spl_discard?)* suffix?;
+numbers_utterance: prefix? discards* (number_pattern (' '* (WORD | CONJUNCTION) ' '*)? spl_discard?)? ((' '* (WORD | CONJUNCTION) ' '*)+ number_pattern? (' '* (WORD | CONJUNCTION)' '*)? spl_discard?)* discards* suffix?;
+discards: (spl_discard (' '* (WORD | CONJUNCTION)' '*)*);
 
 ranges_utterance: prefix? (range_pattern | (number_pattern (' '? WORD ' '?)? spl_discard?))? ((' '? WORD ' '?)+ (range_pattern | number_pattern (' '? WORD ' '?)? spl_discard?))* suffix?;
 
@@ -13,7 +14,9 @@ range_pattern: ' '? 'between' ' '? number_pattern CONJUNCTION number_pattern
     | ' '? number_pattern 'to ' number_pattern
     | ' '? 'of' ' '? number_pattern CONJUNCTION number_pattern;
 
-number_pattern: (crores_format | lakhs_format | thousands_format | hundreds_format | tens_format | units_format);
+number_pattern: (crores_format | lakhs_format | thousands_format | hundreds_format | tens_format | units_format | literal_format);
+
+literal_format: (' '? (WORD_NUMBER_UNITS | NUMBER_UNITS) ' '?)+;
 
 crores_format: prefix_crores? (WORD_NUMBER_CRORES | spl_crores) CONJUNCTION? suffix_crores? CONJUNCTION? WORD_NUMBER_FRACTIONS? | NUMBER_CRORES;
 
@@ -32,7 +35,8 @@ hundreds_format: prefix_hundreds? (WORD_NUMBER_HUNDREDS) CONJUNCTION? suffix_hun
     | spl_hundreds_4
     | NUMBER_HUNDREDS
     | (WORD_NUMBER_UNITS | NUMBER_UNITS) (WORD_NUMBER_UNITS | NUMBER_UNITS) (WORD_NUMBER_UNITS | NUMBER_UNITS)
-    | (WORD_NUMBER_UNITS | NUMBER_UNITS) (WORD_NUMBER_TENS | NUMBER_TENS);
+    | (WORD_NUMBER_UNITS | NUMBER_UNITS) (WORD_NUMBER_TENS | NUMBER_TENS)
+    | (WORD_NUMBER_UNITS | NUMBER_UNITS) (WORD_NUMBER_TENS | NUMBER_TENS) (WORD_NUMBER_UNITS | NUMBER_UNITS);
 
 tens_format: ((WORD_NUMBER_TENS units_format?) | (NUMBER_TENS units_format?)) CONJUNCTION? WORD_NUMBER_FRACTIONS?;
 
@@ -60,10 +64,10 @@ spl_thousands: 'to ' WORD_NUMBER_THOUSANDS;
 spl_lakhs: 'to ' WORD_NUMBER_LAKHS;
 spl_crores: 'to ' WORD_NUMBER_CRORES;
 spl_epilogue: 'to to ';
-spl_discard: 'to ' WORD;
+spl_discard: 'to ' ' '* WORD;
 
-prefix: (' '? WORD ' '?)*;
-suffix: (' '? WORD ' '?)*;
+prefix: (' '? (WORD | CONJUNCTION) ' '?)*;
+suffix: (' '? (WORD | CONJUNCTION) ' '?)*;
 
 WORD_NUMBER_FRACTIONS: ' '? ('half' | 'quarter' | 'three fourth' | 'three fourths') ' '?;
 WORD_NUMBER_UNITS: ' '? ('oh' | 'not' | 'zero' | 'one' | 'two' | 'three' | 'four' | 'five' | 'six' | 'seven' | 'eight' | 'nine') ' '?;
@@ -73,8 +77,9 @@ WORD_NUMBER_HUNDREDS: ' '? ('hundred' | 'hundreds') ' '?;
 WORD_NUMBER_THOUSANDS: ' '? ('thousand' | 'thousands') ' '?;
 WORD_NUMBER_LAKHS: ' '? ('lakh' | 'lakhs' | 'lac' | 'lacs' | 'lax') ' '?;
 WORD_NUMBER_CRORES: ' '? ('crore' | 'crores') ' '?;
-CONJUNCTION: ' '? 'and' ' '?;
-ART: ' '? ('a' | 'an' | 'the') ' '? -> skip;
+CONJUNCTION: ' '? ('and' | 'of') ' '?;
+ART: ('a' | 'an' | 'the') -> skip;
+PUNCT: ('.' | ',' | '\'' | '"' | '!' | '?') -> skip;
 
 NUMBER_UNITS: ' '? DIGIT ([.]DIGIT+)* ' '?;
 NUMBER_TENS: ' '? DIGIT DIGIT ([.]DIGIT+)* ' '?;
