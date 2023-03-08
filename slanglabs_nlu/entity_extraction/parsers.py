@@ -56,5 +56,7 @@ def parse_numbers_with_ranges(inputstr):
 
 
 if __name__ == "__main__":
-    s = 'train tickets for 15th departure and next month 10th return'
-    print(parse_dates(s))
+    # s = 'train tickets for 15th departure and next month 10th return'
+    # print(parse_dates(s))
+    s = 'so happy to give away twenty thousand to the winner'
+    print(parse_numbers(s))

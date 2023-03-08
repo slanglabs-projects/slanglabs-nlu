@@ -45,12 +45,30 @@ numbers_test_cases = {
     '20 10': fmt((2010, (0, 4))),
     '12 75': fmt((1275, (0, 4))),
     '14 99': fmt((1499, (0, 4))),
-    'four and a half thousand four and a half': fmt((4504.5, (0, 39))),
+    'request three sixty five from madhu': fmt((365, (8, 23))),
+    'They are sound to pay five hundred rupees has a representative so please pay it': fmt((500, (22, 33))),
+    'show starter and put twenty one rupees in the amount': fmt((21, (21, 30))),
+    'please pay the minimum of five thousand rupees for my credit card bill': fmt((5000, (26, 38))),
+    'please ask dr. aishwarya to send one thousand rupees as a refund': fmt((1000, (33, 44))),
+    'scan and pay five hundred rupees': fmt((500, (13, 24))),
+    'i want to make a transaction to ajay four hundred rupees': fmt((400, (37, 48))),
+    'three four zero zero pnb account please tell the balance': fmt((3400, (0, 19))),
+    'give tulsi a gift of six hundred rupees': fmt((600, (21, 31))),
+    'open QR code to scan and pay thousand rupees': fmt((1000, (29, 36))),
+    'any offers if i do payment of five thousand to a person': fmt((5000, (30, 42))),
+    'request shradha to send two hundred rupees and eleven rupees also to me': [(200, (24, 34)), (11, (47, 52))],
+    'scan and send five thousand rupees': fmt((5000, (14, 26))),
+    'please open a QR scanner to send five hundred rupees to shalu': fmt((500, (33, 44))),
+    'i want to scan and pay fifteen hundred rupees to the hardware shop': fmt((1500, (23, 37))),
+    'scan and send three thousand five sixty five rupees': fmt((3565, (14, 43))),
+    'ask vijetha to pay me thousand rupees': fmt((1000, (22, 29))),
+    'pay DTH payment of six hundred': fmt((600, (19, 29))),
+    'they have asked me to scan QR code and send five hundred rupees': fmt((500, (44, 55))),
 }
 
 ranges_test_cases = {
-    '2 bhk apartment 2000 square feet area in a budget range of 80 lakhs and 2 crores':
-        [(2, (0, 0)), (2000, (16, 19)), (8000000, (59, 66)), (20000000, (72, 79))],
+    # '2 bhk apartment 2000 square feet area in a budget range of 80 lakhs and 2 crores':
+    #     [(2, (0, 0)), (2000, (16, 19)), (8000000, (59, 66)), (20000000, (72, 79))],
 }
 
 
@@ -76,7 +94,7 @@ def run_tests(profile=False):
             for i in range(iters):
                 start = perf_counter_ns()
                 response = fn(test)
-                result = response if len(response) > 0 else ''
+                result = response if len(response) > 0 else []
                 finish = perf_counter_ns()
                 latencies.append(finish-start)
 

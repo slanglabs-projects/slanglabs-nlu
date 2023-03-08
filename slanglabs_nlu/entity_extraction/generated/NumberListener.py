@@ -17,6 +17,15 @@ class NumberListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by NumberParser#discards.
+    def enterDiscards(self, ctx:NumberParser.DiscardsContext):
+        pass
+
+    # Exit a parse tree produced by NumberParser#discards.
+    def exitDiscards(self, ctx:NumberParser.DiscardsContext):
+        pass
+
+
     # Enter a parse tree produced by NumberParser#ranges_utterance.
     def enterRanges_utterance(self, ctx:NumberParser.Ranges_utteranceContext):
         pass
@@ -41,6 +50,15 @@ class NumberListener(ParseTreeListener):
 
     # Exit a parse tree produced by NumberParser#number_pattern.
     def exitNumber_pattern(self, ctx:NumberParser.Number_patternContext):
+        pass
+
+
+    # Enter a parse tree produced by NumberParser#literal_format.
+    def enterLiteral_format(self, ctx:NumberParser.Literal_formatContext):
+        pass
+
+    # Exit a parse tree produced by NumberParser#literal_format.
+    def exitLiteral_format(self, ctx:NumberParser.Literal_formatContext):
         pass
 
 

@@ -226,6 +226,30 @@ class NumberExtractionListener(NumberListener):
         self.suffixes = []
         self.result = 0
 
+    def set_literal(self, index, value):
+        if index == 0:
+            self.units = value
+        elif index == 1:
+            self.tens = value * TEN
+        elif index == 2:
+            self.hundreds = value * HUNDRED
+        elif index == 3:
+            self.thousands = value * THOUSAND
+        elif index == 4:
+            self.thousands += 10 * value * THOUSAND
+        elif index == 5:
+            self.lakhs = value * LAKH
+        elif index == 6:
+            self.lakhs += 10 * value * LAKH
+        elif index == 7:
+            self.crores = value * CRORE
+        elif index == 8:
+            self.crores += 10 * value * CRORE
+        elif index == 9:
+            self.crores += 100 * value * CRORE
+        elif index == 10:
+            self.crores += 1000 * value * CRORE
+
     def reset(self):
         self.results = []
         self.reset_numbers()
@@ -310,6 +334,16 @@ class NumberExtractionListener(NumberListener):
 
         if stop >= start:
             self.results.append((tmp, (start, stop)))
+
+    def exitLiteral_format(self, ctx: NumberParser.Literal_formatContext):
+        children = [norm(c) for c in ctx.getChildren()]
+        num_children = len(children)
+        for i, child in reversed(list(enumerate(children))):
+            try:
+                tmp = NUMBERS_MAP[norm(child)]
+            except KeyError:
+                tmp = float(norm(child))
+            self.set_literal(num_children - i - 1, tmp)
 
     def enterCrores_format(self, ctx: NumberParser.Crores_formatContext):
         self.prefixes.append(0)
@@ -428,10 +462,19 @@ class NumberExtractionListener(NumberListener):
             elif ctx.NUMBER_UNITS(0):
                 hundreds = float(norm(ctx.NUMBER_UNITS(0)))
 
+            tens = None
             if ctx.WORD_NUMBER_TENS():
                 tens = NUMBERS_MAP[norm(ctx.WORD_NUMBER_TENS())]
             elif ctx.NUMBER_TENS():
                 tens = float(norm(ctx.NUMBER_TENS()))
+
+            if tens:
+                if ctx.WORD_NUMBER_UNITS(1):
+                    tmp = norm(ctx.WORD_NUMBER_UNITS(1))
+                    units = NUMBERS_MAP[tmp]
+                elif ctx.NUMBER_UNITS(1):
+                    tmp = norm(ctx.NUMBER_UNITS(1))
+                    units = float(tmp)
             else:
                 children = [norm(c) for c in ctx.getChildren()]
                 for i in range(3):
@@ -518,11 +561,11 @@ class NumberExtractionListener(NumberListener):
     def exitSpl_hundreds_1(self, ctx: NumberParser.Spl_hundreds_1Context):
         tens = self.spl_tens
         units = parse_units(ctx)
-        self.hundreds = tens * 10 + units
+        self.spl_hundreds = tens * 10 + units
 
     def exitSpl_hundreds_2(self, ctx: NumberParser.Spl_hundreds_2Context):
         hundreds = parse_units(ctx)
-        self.hundreds = hundreds * 100 + self.spl_tens
+        self.spl_hundreds = hundreds * 100 + self.spl_tens
 
     def exitSpl_hundreds_3(self, ctx: NumberParser.Spl_hundreds_3Context):
         units = 2
@@ -539,12 +582,12 @@ class NumberExtractionListener(NumberListener):
         elif ctx.NUMBER_UNITS(0):
             hundreds = float(norm(ctx.NUMBER_UNITS(0)))
 
-        self.hundreds = hundreds * 100 + tens * 10 + units
+        self.spl_hundreds = hundreds * 100 + tens * 10 + units
 
     def exitSpl_hundreds_4(self, ctx: NumberParser.Spl_hundreds_4Context):
         units = 2
         tens = self.spl_tens
-        self.hundreds = tens * 10 + units
+        self.spl_hundreds = tens * 10 + units
 
     def exitSpl_tens(self, ctx: NumberParser.Spl_tensContext):
         units = parse_units(ctx)
