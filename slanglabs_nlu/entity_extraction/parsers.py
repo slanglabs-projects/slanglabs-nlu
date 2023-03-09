@@ -10,6 +10,8 @@ from slanglabs_nlu.entity_extraction.numberparser import NumberExtractionListene
 from slanglabs_nlu.entity_extraction.generated.NumberLexer import NumberLexer
 from slanglabs_nlu.entity_extraction.generated.NumberParser import NumberParser
 
+import json
+
 
 def parse_dates(inputstr, include_time=False, bias_to_future=True):
     try:
@@ -58,5 +60,13 @@ def parse_numbers_with_ranges(inputstr):
 if __name__ == "__main__":
     # s = 'train tickets for 15th departure and next month 10th return'
     # print(parse_dates(s))
-    s = 'so happy to give away twenty thousand to the winner'
+    s = 'pay one million rupees to myself'
     print(parse_numbers(s))
+
+    # with open('/tmp/filtered.json') as f:
+    #     d = json.load(f)
+    #
+    # for item in d:
+    #     input = item['Reference_transcript']
+    #     print('{} -> {}'.format(input, parse_numbers(input)))
+

@@ -49,7 +49,7 @@ numbers_test_cases = {
     'They are sound to pay five hundred rupees has a representative so please pay it': fmt((500, (22, 33))),
     'show starter and put twenty one rupees in the amount': fmt((21, (21, 30))),
     'please pay the minimum of five thousand rupees for my credit card bill': fmt((5000, (26, 38))),
-    'please ask dr. aishwarya to send one thousand rupees as a refund': fmt((1000, (33, 44))),
+    'please ask dr aishwarya to send one thousand rupees as a refund': fmt((1000, (32, 43))),
     'scan and pay five hundred rupees': fmt((500, (13, 24))),
     'i want to make a transaction to ajay four hundred rupees': fmt((400, (37, 48))),
     'three four zero zero pnb account please tell the balance': fmt((3400, (0, 19))),
@@ -64,6 +64,10 @@ numbers_test_cases = {
     'ask vijetha to pay me thousand rupees': fmt((1000, (22, 29))),
     'pay DTH payment of six hundred': fmt((600, (19, 29))),
     'they have asked me to scan QR code and send five hundred rupees': fmt((500, (44, 55))),
+    'receive five k from vinayak': fmt((5000, (8, 13))),
+    'pay one million rupees to myself': fmt((1000000, (4, 14))),
+    'pay five point one million rupees to myself': fmt((5100000, (4, 25))),
+    'approve the pay request that i have from zerodha': [],
 }
 
 ranges_test_cases = {
