@@ -19,6 +19,7 @@ FRACTIONS_MAP = {
 }
 
 NUMBERS_MAP = {
+    'o': 0,
     'oh': 0,
     'not': 0,
     'zero': 0,
@@ -48,7 +49,7 @@ NUMBERS_MAP = {
     'sixty': 60,
     'seventy': 70,
     'eighty': 80,
-    'ninty': 90,
+    'ninety': 90,
     'hundred': HUNDRED,
     'hundreds': HUNDRED,
     'thousand': THOUSAND,
@@ -57,6 +58,10 @@ NUMBERS_MAP = {
     'lakhs': LAKH,
     'crore': CRORE,
     'crores': CRORE,
+    'million': 10 * LAKH,
+    'millions': 10 * LAKH,
+    'billion': 1000 * 10 * LAKH,
+    'billions': 1000 * 10 * LAKH,
 }
 
 
@@ -143,6 +148,10 @@ def parse_thousands(ctx, prefix=1, suffix=0):
 
     upper = lower = 0
     children = [norm(c) for c in ctx.getChildren()]
+
+    if 'k' in children:
+        return prefix * THOUSAND + suffix
+
     for i in range(2):
         idx = -1
         if ctx.WORD_NUMBER_TENS(i):
@@ -183,6 +192,19 @@ def parse_lakhs(ctx, prefix=1, suffix=0):
     return 0
 
 
+def parse_millions(ctx, prefix=1, suffix=0):
+    if ctx.WORD_NUMBER_MILLIONS():
+        return float(
+            prefix * NUMBERS_MAP[norm(ctx.WORD_NUMBER_MILLIONS())]
+            + suffix
+        )
+
+    if ctx.NUMBER_MILLIONS():
+        return float(norm(ctx.NUMBER_MILLIONS()))
+
+    return 0
+
+
 def parse_crores(ctx, prefix=1, suffix=0):
     if ctx.WORD_NUMBER_CRORES():
         return float(
@@ -192,6 +214,19 @@ def parse_crores(ctx, prefix=1, suffix=0):
 
     if ctx.NUMBER_CRORES():
         return float(norm(ctx.NUMBER_CRORES()))
+
+    return 0
+
+
+def parse_billions(ctx, prefix=1, suffix=0):
+    if ctx.WORD_NUMBER_BILLIONS():
+        return float(
+            prefix * NUMBERS_MAP[norm(ctx.WORD_NUMBER_BILLIONS())]
+            + suffix
+        )
+
+    if ctx.NUMBER_BILLIONS():
+        return float(norm(ctx.NUMBER_BILLIONS()))
 
     return 0
 
@@ -219,8 +254,9 @@ class NumberExtractionListener(NumberListener):
         self.results = []
         self.crores = self.lakhs = self.thousands = 0
         self.hundreds = self.tens = self.units = 0
-        self.spl_crores = self.spl_lakhs = self.spl_thousands = 0
-        self.spl_hundreds = self.spl_tens = self.spl_units = 0
+        self.fraction = 0.0
+        self.spl_billions = self.spl_crores = self.spl_lakhs = self.spl_thousands = 0
+        self.spl_millions = self.spl_hundreds = self.spl_tens = self.spl_units = 0
         self.prefix = 0
         self.prefixes = []
         self.suffixes = []
@@ -257,6 +293,7 @@ class NumberExtractionListener(NumberListener):
     def reset_numbers(self):
         self.crores = self.lakhs = self.thousands = 0
         self.hundreds = self.tens = self.units = 0
+        self.fraction = 0.0
         self.spl_crores = self.spl_lakhs = self.spl_thousands = 0
         self.spl_hundreds = self.spl_tens = self.spl_units = 0
 
@@ -268,13 +305,13 @@ class NumberExtractionListener(NumberListener):
 
     def handle_exit_prefix(self):
         tmp = (self.crores + self.lakhs + self.thousands
-               + self.hundreds + self.tens + self.units)
+               + self.hundreds + self.tens + self.units + self.fraction)
         self.prefixes[-1] += tmp
         self.reset_numbers()
 
     def handle_exit_suffix(self):
         tmp = (self.crores + self.lakhs + self.thousands
-               + self.hundreds + self.tens + self.units)
+               + self.hundreds + self.tens + self.units + self.fraction)
         self.suffixes[-1] += tmp
         self.reset_numbers()
 
@@ -318,7 +355,7 @@ class NumberExtractionListener(NumberListener):
         # ))
 
         tmp = (self.crores + self.lakhs + self.thousands
-               + self.hundreds + self.tens + self.units)
+               + self.hundreds + self.tens + self.units + self.fraction)
 
         if isinstance(tmp, float) and tmp.is_integer():  # noqa
             tmp = int(tmp)
@@ -337,13 +374,37 @@ class NumberExtractionListener(NumberListener):
 
     def exitLiteral_format(self, ctx: NumberParser.Literal_formatContext):
         children = [norm(c) for c in ctx.getChildren()]
+        if self.fraction != 0.0:
+            children = children[:-1]
+
         num_children = len(children)
         for i, child in reversed(list(enumerate(children))):
+            tmp = None
             try:
-                tmp = NUMBERS_MAP[norm(child)]
+                tmp = NUMBERS_MAP[child]
             except KeyError:
-                tmp = float(norm(child))
-            self.set_literal(num_children - i - 1, tmp)
+                if child in ['point', 'dot']:
+                    continue
+
+                if isinstance(child, float):
+                    tmp = float(child)
+
+            if tmp is not None:
+                self.set_literal(num_children - i - 1, tmp)
+
+    def enterBillions_format(self, ctx: NumberParser.Billions_formatContext):
+        self.prefixes.append(0)
+        self.suffixes.append(0)
+
+    def exitBillions_format(self, ctx: NumberParser.Billions_formatContext):
+        prefix = self.prefixes.pop()
+        prefix = max(1, prefix)
+
+        suffix = self.suffixes.pop()
+
+        self.crores = parse_billions(ctx, prefix, suffix)
+        if self.crores == 0 and self.spl_billions != 0:
+            self.crores = (prefix * self.spl_billions + suffix)
 
     def enterCrores_format(self, ctx: NumberParser.Crores_formatContext):
         self.prefixes.append(0)
@@ -355,13 +416,23 @@ class NumberExtractionListener(NumberListener):
 
         suffix = self.suffixes.pop()
 
-        fraction = 0
-        if ctx.WORD_NUMBER_FRACTIONS():
-            fraction = float(FRACTIONS_MAP[norm(ctx.WORD_NUMBER_FRACTIONS())])
-
-        self.crores = parse_crores(ctx, prefix, suffix) + fraction
+        self.crores = parse_crores(ctx, prefix, suffix)
         if self.crores == 0 and self.spl_crores != 0:
-            self.crores = prefix * self.spl_crores + suffix + fraction
+            self.crores = prefix * self.spl_crores + suffix
+
+    def enterMillions_format(self, ctx: NumberParser.Millions_formatContext):
+        self.prefixes.append(0)
+        self.suffixes.append(0)
+
+    def exitMillions_format(self, ctx: NumberParser.Millions_formatContext):
+        prefix = self.prefixes.pop()
+        prefix = max(1, prefix)
+
+        suffix = self.suffixes.pop()
+
+        self.lakhs = parse_millions(ctx, prefix, suffix)
+        if self.lakhs == 0 and self.spl_millions != 0:
+            self.lakhs = (prefix * self.spl_millions + suffix)
 
     def enterPrefix_crores(self, ctx: NumberParser.Prefix_croresContext):
         self.handle_enter_prefix()
@@ -384,13 +455,9 @@ class NumberExtractionListener(NumberListener):
         prefix = max(1, prefix)
         suffix = self.suffixes.pop()
 
-        fraction = 0
-        if ctx.WORD_NUMBER_FRACTIONS():
-            fraction = float(FRACTIONS_MAP[norm(ctx.WORD_NUMBER_FRACTIONS())])
-
-        self.lakhs = parse_lakhs(ctx, prefix, suffix) + fraction
+        self.lakhs = parse_lakhs(ctx, prefix, suffix)
         if self.lakhs == 0 and self.spl_lakhs != 0:
-            self.lakhs = prefix * self.spl_lakhs + suffix + fraction
+            self.lakhs = prefix * self.spl_lakhs + suffix
 
     def enterPrefix_lakhs(self, ctx: NumberParser.Prefix_lakhsContext):
         self.handle_enter_prefix()
@@ -413,13 +480,9 @@ class NumberExtractionListener(NumberListener):
         prefix = max(1, prefix)
         suffix = self.suffixes.pop()
 
-        fraction = 0
-        if ctx.WORD_NUMBER_FRACTIONS():
-            fraction = float(FRACTIONS_MAP[norm(ctx.WORD_NUMBER_FRACTIONS())])
-
-        self.thousands = parse_thousands(ctx, prefix, suffix) + fraction
+        self.thousands = parse_thousands(ctx, prefix, suffix)
         if self.thousands == 0 and self.spl_thousands != 0:
-            self.thousands = prefix * self.spl_thousands + suffix + fraction
+            self.thousands = prefix * self.spl_thousands + suffix
 
     def enterPrefix_thousands(self, ctx: NumberParser.Prefix_thousandsContext):
         self.handle_enter_prefix()
@@ -442,19 +505,15 @@ class NumberExtractionListener(NumberListener):
         prefix = max(1, prefix)
         suffix = self.suffixes.pop()
 
-        fraction = 0
-        if ctx.WORD_NUMBER_FRACTIONS():
-            fraction = float(FRACTIONS_MAP[norm(ctx.WORD_NUMBER_FRACTIONS())])
-
         if ctx.WORD_NUMBER_HUNDREDS():
             self.hundreds = prefix * NUMBERS_MAP[
                 norm(ctx.WORD_NUMBER_HUNDREDS())
-            ] + suffix + fraction
+            ] + suffix
 
         elif ctx.NUMBER_HUNDREDS():
             self.hundreds = float(norm(ctx.NUMBER_HUNDREDS()))
         elif self.spl_hundreds != 0:
-            self.hundreds = prefix * self.spl_hundreds + fraction
+            self.hundreds = prefix * self.spl_hundreds
         else:
             units = tens = hundreds = 0
             if ctx.WORD_NUMBER_UNITS(0):
@@ -503,7 +562,7 @@ class NumberExtractionListener(NumberListener):
                             units = float(tmp)
 
             if hundreds > 0 or tens > 0 or units > 0:
-                self.hundreds = hundreds * 100 + tens + units + fraction
+                self.hundreds = hundreds * 100 + tens + units
 
     def enterPrefix_hundreds(self, ctx: NumberParser.Prefix_hundredsContext):
         self.handle_enter_prefix()
@@ -525,11 +584,7 @@ class NumberExtractionListener(NumberListener):
         self.prefixes.pop()
         self.suffixes.pop()
 
-        fraction = 0
-        if ctx.WORD_NUMBER_FRACTIONS():
-            fraction = float(FRACTIONS_MAP[norm(ctx.WORD_NUMBER_FRACTIONS())])
-
-        self.tens = parse_tens(ctx) + fraction
+        self.tens = parse_tens(ctx)
 
     def enterUnits_format(self, ctx: NumberParser.Units_formatContext):
         self.prefixes.append(0)
@@ -539,14 +594,56 @@ class NumberExtractionListener(NumberListener):
         self.prefixes.pop()
         self.suffixes.pop()
 
-        fraction = 0
+        self.units = parse_units(ctx)
+
+    def exitFractional_format(self, ctx: NumberParser.Fractional_formatContext):
         if ctx.WORD_NUMBER_FRACTIONS():
             fraction = float(FRACTIONS_MAP[norm(ctx.WORD_NUMBER_FRACTIONS())])
 
-        self.units = parse_units(ctx) + fraction
+        tens = 0
+        units = 0
+        if ctx.WORD_NUMBER_TENS():
+            tens = NUMBERS_MAP[norm(ctx.WORD_NUMBER_TENS())]
+            units = self.units
+            self.units = 0
+        elif ctx.NUMBER_TENS():
+            tens = norm(ctx.NUMBER_TENS())
+            units = self.units
+            self.units = 0
+
+        if tens > 0 or units > 0:
+            self.fraction = (tens + units)/100
+            return
+
+        children = [norm(c) for c in ctx.getChildren()]
+
+        if len(children) == 1 and children[0] in FRACTIONS_MAP:
+            self.fraction = float(FRACTIONS_MAP[children[0]])
+            return
+
+        result = 0
+        mult = 1
+        for i, child in enumerate(children):
+            try:
+                tmp = NUMBERS_MAP[child]
+            except KeyError:
+                if child in ['point', 'dot']:
+                    continue
+
+                tmp = float(child)
+            result = result * 10 + tmp
+            mult *= 10
+
+        self.fraction = (result/mult)
+
+    def exitSpl_billions(self, ctx: NumberParser.Spl_billionsContext):
+        self.spl_billions = 2000000000
 
     def exitSpl_crores(self, ctx: NumberParser.Spl_croresContext):
         self.spl_crores = 20000000
+
+    def exitSpl_millions(self, ctx: NumberParser.Spl_millionsContext):
+        self.spl_millions = 2000000
 
     def exitSpl_lakhs(self, ctx: NumberParser.Spl_lakhsContext):
         self.spl_lakhs = 200000
